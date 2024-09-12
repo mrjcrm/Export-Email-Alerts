@@ -3,7 +3,7 @@
 //---------------------------------------------------------
 
 //---------------------------------------------------------
-// Purpose: Exports all email alerts (and Flow email actions) to a CSV spreadsheet and emails it to current user
+// Purpose: Export all email alerts (and Flow email actions) to a CSV spreadsheet and emails it to current user
 // Strategy: Uses REST/Tooling API to read the WorkflowAlert and Flow sObjects
 // Strategy: Uses batch Apex to handle large alert volumes (>100)
 // Read-only (no updates made to Salesforce data)
