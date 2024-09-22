@@ -8,13 +8,10 @@ Several administrators have expressed a need to list all Salesforce email alerts
 ## Author
 Rod MacKenzie mr.jcrm@gmail.com
 ## Installation
-Deploy these classes:
-- BATCH_ExportEmailAlerts
-- BATCH_ExportEmailAlertsMockHTTP
-- BATCH_ExportEmailAlertsTEST
+Install unlocked package in DE org or production org https://login.salesforce.com/packaging/installPackage.apexp?p0=04tak00000030Y9AAI\
+Install unlocked package in sandbox org or scratch org https://test.salesforce.com/packaging/installPackage.apexp?p0=
 ## How to run (admin privileges are recommended)
-- Execute anonymous: ```Database.executeBatch(new BATCH_ExportEmailAlerts(),50);```
-- Or, you can create a flow with a screen element whose button runs Apex Action "Export Email Alerts"
+!(images/HowToLaunch.png)
 ## Known issues
 - After clicking an alert URL in the CSV, the detail page is shown in SFDC Classic, not Lightning.
 ## Sample CSV
