@@ -12,6 +12,7 @@ Install unlocked package in DE org or production org https://login.salesforce.co
 Install unlocked package in sandbox org or scratch org https://test.salesforce.com/packaging/installPackage.apexp?p0=
 ## How to run
 ![](images/HowToLaunch.png)
+<br><img src="images/HowToLaunch.png" alt="Alt text" title="Optional title" width="300"/>
 ## Known issues
 - After clicking an alert URL in the CSV, the detail page is shown in SFDC Classic, not Lightning.
 ## Sample CSV
