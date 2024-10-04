@@ -20,10 +20,10 @@ Rod MacKenzie mr.jcrm@gmail.com
 ## Sample CSV
 <img width="769" alt="Email alerts" src="https://user-images.githubusercontent.com/16543260/233796850-b12af254-c27e-4de3-ba76-dd4aa726b339.png">
 
-## Use Cases
-- Or this [UseCase2](https://success.salesforce.com/answers?id=90630000000gqM7AAI)
-- Or this [UseCase4](https://ideas.salesforce.com/s/idea/a0B8W00000GdhyhUAB/allow-tooling-api-to-query-recipients-for-workflow-alerts)
-- Or this [UseCase5](https://www.sfdcstuff.com/2020/01/fetch-all-workflow-email-alert-details.html#google_vignette)
-- Or this [UseCase6](https://salesforce.stackexchange.com/questions/302616/how-to-query-the-workflowalert-metadata-object)
-- Or this [UseCase7](https://trailhead.salesforce.com/trailblazer-community/feed/0D54S00000A7kiySAB)
-- Or this [UseCase8](https://ideas.salesforce.com/s/idea/a0B8W00000GdivMUAR/deactivating-users-who-are-used-in-workflows)
+## Real-World Use Cases
+- [Need to find which email alerts use a specific user](https://success.salesforce.com/answers?id=90630000000gqM7AAI)
+- [Need to query recipients of email alerts](https://ideas.salesforce.com/s/idea/a0B8W00000GdhyhUAB/allow-tooling-api-to-query-recipients-for-workflow-alerts)
+- [Need to extract all email alert configured or created for different workflow rules](https://www.sfdcstuff.com/2020/01/fetch-all-workflow-email-alert-details.html#google_vignette)
+- [I need to send a list of all the email alerts a user is registered to](https://salesforce.stackexchange.com/questions/302616/how-to-query-the-workflowalert-metadata-object)
+- [UseCase7 NEED TO REVIEW USE CASE](https://trailhead.salesforce.com/trailblazer-community/feed/0D54S00000A7kiySAB)
+- [We have tons of workflows which makes sifting through all of them to find one user a difficult and painful task](https://ideas.salesforce.com/s/idea/a0B8W00000GdivMUAR/deactivating-users-who-are-used-in-workflows)
