@@ -1,6 +1,6 @@
 # Export Email Alerts  ![SFDCLogo transparent 03pct](https://user-images.githubusercontent.com/16543260/233866155-fcd090d8-82cd-49fa-90d7-d2c2f2ee4b00.png)
 ## Genesis
-Over the years I've seen people asking how can I get a list of all the email addresses used by my org's email alerts.  [How to do abc?](https://shit.com), [How to do def?](https://shit.com) Some of the solutions are not bad.  But I prefer a solution which is simple and yet does things like examining alerts for all sObjects, and expanding targets like groups or roles.  And it includes flow Email Actions.<br>
+Over the years I've heard people asking how can I get a list of all the email addresses used by my org's email alerts.  [How to do abc?](https://shit.com), [How to do def?](https://shit.com) Some of the solutions are interesting.  My solution lists email addresseses for alerts. It looks at alerts for all sObjects in your org. It resolves group targets (like role and groups) into individual email addresses.  Flow Email Actions are included.<br>
 <br><br>*Use the GitHub [Issues tab](https://github.com/50471736/Export_Email_Alerts/issues) to report bugs or request enhancements.*
 ## Architecture
 - Uses Tooling API to read WorkflowAlert and Flow sObjects
@@ -19,3 +19,11 @@ Rod MacKenzie mr.jcrm@gmail.com
 - After clicking an alert URL in the CSV, the detail page is shown in SFDC Classic, not Lightning.
 ## Sample CSV
 <img width="769" alt="Email alerts" src="https://user-images.githubusercontent.com/16543260/233796850-b12af254-c27e-4de3-ba76-dd4aa726b339.png">
+
+## Use Cases
+- Or this [UseCase2](https://success.salesforce.com/answers?id=90630000000gqM7AAI)
+- Or this [UseCase4](https://ideas.salesforce.com/s/idea/a0B8W00000GdhyhUAB/allow-tooling-api-to-query-recipients-for-workflow-alerts)
+- Or this [UseCase5](https://www.sfdcstuff.com/2020/01/fetch-all-workflow-email-alert-details.html#google_vignette)
+- Or this [UseCase6](https://salesforce.stackexchange.com/questions/302616/how-to-query-the-workflowalert-metadata-object)
+- Or this [UseCase7](https://trailhead.salesforce.com/trailblazer-community/feed/0D54S00000A7kiySAB)
+- Or this [UseCase8](https://ideas.salesforce.com/s/idea/a0B8W00000GdivMUAR/deactivating-users-who-are-used-in-workflows)
