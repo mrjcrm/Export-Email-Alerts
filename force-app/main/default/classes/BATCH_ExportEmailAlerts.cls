@@ -3,19 +3,16 @@
 //---------------------------------------------------------
 
 //---------------------------------------------------------
-// Purpose: Export all email alerts (and Flow email actions) to a CSV spreadsheet and emails it to current user
-// Strategy: Uses REST/Tooling API to read the WorkflowAlert and Flow sObjects
-// Strategy: Uses batch Apex to handle large alert volumes (>100)
-// Read-only (no updates made to Salesforce data)
-// Author: Sir Rodney MacKenzie mr.jcrm@gmail.com, 2023
+// Purpose: Export all email alerts and active flow email actions) to a CSV which is emailed to the current user
+// Strategy: Uses REST/Tooling API to read  WorkflowAlerts and Flows
+// Strategy: Uses batch Apex in case your org has lots of email alerts
+// Read-only, no updates made to Salesforce
+// Author: Rod MacKenzie mr.jcrm@gmail.com
 //
-// How to run (admin privileges are recommended)
-//    Deploy the classes. Then,
-//    - Execute anonymous: Database.executeBatch(new BATCH_ExportEmailAlerts(),50); // Last parameter is batch size (min=1, max=100)
-//    - Or, create a flow with a screen element whose button runs Apex Action "Export Email Alerts"
-//
-// Known issues
-//   - After clicking an alert URL in the CSV, the detail page is shown in SFDC Classic, not Lightning.
+// How to install and run. Admin privileges are required. 
+// - Easiest is to install it from the the GitHub project
+// - Otherwise, deploy the classes in a manner of your choosing. Then execute this anonymous Apex:
+//   Database.executeBatch(new BATCH_ExportEmailAlerts(),50);
 //---------------------------------------------------------
 
 //---------------------------------------------------------
