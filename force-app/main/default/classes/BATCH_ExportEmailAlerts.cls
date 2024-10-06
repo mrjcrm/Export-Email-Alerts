@@ -10,7 +10,7 @@
 // Author: Rod MacKenzie mr.jcrm@gmail.com
 //
 // How to install and run. Admin privileges are required. 
-// - Easiest is to install it from the the GitHub project
+// - Easiest is to install from the the GitHub project
 // - Otherwise, deploy the classes in a manner of your choosing. Then execute this anonymous Apex:
 //   Database.executeBatch(new BATCH_ExportEmailAlerts(),50);
 //---------------------------------------------------------
