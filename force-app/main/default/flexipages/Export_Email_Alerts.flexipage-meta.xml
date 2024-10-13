@@ -18,7 +18,7 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-    <masterLabel>Export Email Alertsx</masterLabel>
+    <masterLabel>Export Email Alerts</masterLabel>
     <template>
         <name>flexipage:defaultAppHomeTemplate</name>
     </template>
