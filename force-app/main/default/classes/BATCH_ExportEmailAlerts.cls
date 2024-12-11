@@ -4,14 +4,14 @@
 
 //---------------------------------------------------------
 // Purpose: Export all email alerts and active flow email actions) to a CSV which is emailed to the current user
-// Strategy: Uses REST/Tooling API to read  WorkflowAlerts and Flows
-// Strategy: Uses batch Apex in case your org has lots of email alerts
+// Strategy: Use Tooling API to read  WorkflowAlerts and Flows
+// Strategy: Use batch Apex in case org has lots of email alerts
 // Read-only, no updates made to Salesforce
 // Author: Rod MacKenzie mr.jcrm@gmail.com
 //
-// How to install and run. Admin privileges are required. 
-// - Easiest is to install from the the GitHub project
-// - Otherwise, deploy the classes in a manner of your choosing. Then execute this anonymous Apex:
+// How to install and run (admin privileges are required)
+// - Recommended: See GitHub for how to install and run
+// - Or, manually deploy the classes. Then run by executing anonymous Apex:
 //   Database.executeBatch(new BATCH_ExportEmailAlerts(),50);
 //---------------------------------------------------------
 
