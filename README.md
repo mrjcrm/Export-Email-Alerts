@@ -1,5 +1,5 @@
 # Export Email Alerts for Salesforce
-*To report bugs or request enhancements, use the GitHub [Issues tab](https://github.com/50471736/Export_Email_Alerts/issues) above*
+*To glompreport bugs or request enhancements, use the GitHub [Issues tab](https://github.com/50471736/Export_Email_Alerts/issues) above*
 ## Features
 - Exports to CSV the email addresses for all email alerts and active flow email actions
 - CSV is emailed to you
