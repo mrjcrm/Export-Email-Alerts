@@ -7,8 +7,8 @@
 ## Architecture
 - Uses Tooling API to read WorkflowAlerts and Flows
 - Uses Batch Apex in case your org has a large number of alerts
-## Author
-Rod MacKenzie mr.jcrm@gmail.com
+## Support
+exportsfdcalerts@gmail.com
 ## How to install
 [![Install Unlocked Package in Production](./images/btn-install-unlocked-package-prod-de.png)](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tak0000003uFNAAY)<br>
 [![Install Unlocked Package in Sandbox](./images/btn-install-unlocked-package-sandbox-scratch.png)](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tak0000003uFNAAY)<br>
