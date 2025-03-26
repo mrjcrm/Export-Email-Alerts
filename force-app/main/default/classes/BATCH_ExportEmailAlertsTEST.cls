@@ -2,10 +2,22 @@
 // This is the test class for BATCH_ExportEmailAlerts
 //---------------------------------------------------------------------------------
 
-@istest
+@isTest(SeeAllData=false)
+
 //---------------------------------------------------------------------------------
 private class BATCH_ExportEmailAlertsTEST {
 //--------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------
+static testmethod void test_ErrorHandler() {
+//--------------------------------------------------------------------------------
+Test.startTest();
+Test.setMock(HttpCalloutMock.class, new BATCH_ExportEmailAlertsMockHTTP('WorkflowAlert'));
+BATCH_ExportEmailAlerts b = new BATCH_ExportEmailAlerts();
+b.testException = true;
+Database.executeBatch (b,10);
+Test.stopTest();
+} // end method
 
 //--------------------------------------------------------------------------------
 static testmethod void test_CodeCvg_WorkflowAlert() {
@@ -41,7 +53,7 @@ Test.startTest();
 Test.setMock(HttpCalloutMock.class, new BATCH_ExportEmailAlertsMockHTTP('EmailAction'));
 BATCH_ExportEmailAlerts b = new BATCH_ExportEmailAlerts();
 Database.executeBatch(b,10);
-Test.stopTest();
+Test.stopTest(); // Correct placement of stopTest. Don't place at end of this method, assertion will fail!
 
 // Test: Make sure CSV has the right number of Flow email actions based on the HTTPMock data.
 integer flowsFound = BATCH_ExportEmailAlerts.copyOfAlertCSV.countMatches('"Flow email action"'); // was "Flow"
@@ -52,6 +64,7 @@ else {
     system.debug('Test failed. Expected CSV to have two Flow alerts, found ' + flowsFound);
     Assert.fail();
 }
+
 } // end method
 
 //--------------------------------------------------------------------------------

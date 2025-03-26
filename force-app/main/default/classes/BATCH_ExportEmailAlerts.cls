@@ -19,7 +19,8 @@
 public with sharing class BATCH_ExportEmailAlerts implements Database.Batchable<String>, Database.Stateful, Database.AllowsCallouts  {
 //---------------------------------------------------------
 
-static final string version = '1.0.0';
+static final string VERSION = '1.0.0';
+static final string DEVELOPER_EMAIL = 'exportsfdcalerts@gmail.com';
   
 //---------------------------------------------------------
 @InvocableMethod(label='Export Email Alerts') public static void exportEmailAlerts() {
@@ -46,6 +47,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   static final string SFDC_URL = Url.getSalesforceBaseUrl().toExternalForm(); 
         
   // Vars for this app
+  public boolean testException = false;
   public string alertCSV = '';
   static final string thisAppName = 'ExportEmailAlerts'; 
   static final string APIVER = 'v57.0';
@@ -66,7 +68,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   //--------------------------------------------------------------------
   // These static variables can be examined by a test class to verify the app works correctly.
   //--------------------------------------------------------------------
-  @TestVisible static string copyOfAlertCSV; 
+  @TestVisible static string copyOfAlertCSV=''; 
   
   //---------------------------------------------------------
   public BATCH_ExportEmailAlerts() { // Constructor
@@ -128,12 +130,18 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   req.setHeader('Content-Type', 'application/json');
   req.setMethod('GET'); 
   
+  try {
+
   for(Integer x = 0; x < scope.size(); x++) {
+    if (testException) { // Test to ensure app responds correctly if exception occurs in this method
+      integer suicide = 0/0;
+    }
+   
     if (scope[x].left(3) == '01W') { // 01W rec prefix = workflowalert
       req.setEndpoint(SFDC_URL + '/services/data/'+ APIVER + '/tooling/sobjects/WorkflowAlert/' + scope[x]);
       res = h.send(req);
       if (res.getStatus() != 'ok') {
-        system.debug('Bad HTTP status for rectype 01W: ' + res.getStatus() + ', id=' + scope[x]);
+        system.debug('glixl Bad HTTP status for rectype 01W: ' + res.getStatus() + ', id=' + scope[x]);
       } else {
         addToSpreadsheet_WorkflowAlert(res);
       }
@@ -142,7 +150,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
       req.setEndpoint(SFDC_URL + '/services/data/'+ APIVER + '/tooling/sobjects/Flow/' + scope[x]);
       res = h.send(req);
       if (res.getStatus() != 'ok') {
-        system.debug('Bad HTTP status for rectype 301: ' + res.getStatus() + ', id=' + scope[x]);
+        system.debug('glixl Bad HTTP status for rectype 301: ' + res.getStatus() + ', id=' + scope[x]);
       } else {
         addToSpreadsheet_Flow(res);
       }
@@ -151,7 +159,15 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   
   // Update governor stats for this batch
   updateBatchGovernorStats(scope.size());
+
+  } // end try
+  
+  catch (Exception e) {
+    abortBatchJob(BC, e);
+  } // end catch
+
   } // end method
+
   
   //----------------------------------------------------------
   public void finish(Database.BatchableContext BC) {
@@ -250,6 +266,25 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   //---------------------------------------------------------
   return [SELECT Id, Email, FirstName, LastName, IsActive FROM User WHERE email = :emailAddress];
   } // end method
+
+  /* //---------------------------------------------------------
+  private string getObjectEmail (string objectId) {
+  //---------------------------------------------------------
+  if (objectId.left(3) == '003') { // Contact
+    integer x = 10/0;
+    return [SELECT email FROM contact WHERE Id = :objectId LIMIT 1].Id;
+  }
+  else if (objectId.left(3) == '00Q') { // Lead
+    return [SELECT email FROM Lead WHERE Id = :objectId LIMIT 1].Id;
+  }
+  // This app does not support person accounts
+  //else if (objectId.left(3) == '001') { // Person account
+  //  return [SELECT email FROM contact WHERE Id = :objectId LIMIT 1].Id;
+  //}
+  else {
+    return null;
+  }
+  } // end method */
   
   //---------------------------------------------------------
   private void writeRecipientCSV (workFlowAlert w, integer whichRecip, list<user> userList) {
@@ -257,14 +292,14 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   for (integer y=0; y < userList.size(); y++) {
     totalEmailAddresses++;
     alertCSV = alertCSV + 
-      '"' + userList[y].email + '",' +
-      '"' + w.Description + '",' +
-      '"Email alert",' + //'"' + w.attributes.type + '",' + 
-      '"' + userList[y].firstName + ' ' + userList[y]. lastName + '",' +
-      '"' + w.Metadata.recipients[whichRecip].type + '",' +
-      '"' + w.Metadata.recipients[whichRecip].recipient + '",' +
-      '"' + (userList[y].isActive == true ? 'Active' : 'Inactive') + '",' +
-      '"' + SFDC_URL + '/' + w.id + '",' + 
+      '"' + userList[y].email + '",' + // CSV: Email
+      '"' + w.Description + '",' + // CSV: Alert name
+      '"Email alert",' + //'"' + w.attributes.type + '",' + // CSV: Alert type
+      '"' + userList[y].firstName + ' ' + userList[y]. lastName + '",' + // CSV: User name
+      '"' + w.Metadata.recipients[whichRecip].type + '",' + // CSV: Recipient type
+      '"' + w.Metadata.recipients[whichRecip].recipient + '",' + // CSV: Recipient valu
+      '"' + (userList[y].isActive == true ? 'Active' : 'Inactive') + '",' + // CSV: User status
+      '"' + SFDC_URL + '/' + w.id + '",' + // CSV: Alert URL
       '\n';
   }
   } // end method
@@ -277,19 +312,24 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   for (integer a=0; a < f.metadata.actionCalls.size(); a++) {
     if (f.metadata.actionCalls[a].actionType == 'emailSimple') {
       for (integer b=0; b < f.metadata.actionCalls[a].inputParameters.size(); b++) {
-        if (f.metadata.actionCalls[a].inputParameters[b].name == 'emailAddresses') { 
+        if ((f.metadata.actionCalls[a].inputParameters[b].name == 'emailAddresses' || 
+        f.metadata.actionCalls[a].inputParameters[b].name == 'emailAddressesArray' ||
+        f.metadata.actionCalls[a].inputParameters[b].name == 'recipientId' ||
+        f.metadata.actionCalls[a].inputParameters[b].name == 'bccRecipientAddressList' ||
+        f.metadata.actionCalls[a].inputParameters[b].name == 'ccRecipientAddressList') &&
+        (f.metadata.actionCalls[a].inputParameters[b].value.stringValue != null)) {
           list<string> emailList = new list<string>(f.metadata.actionCalls[a].inputParameters[b].value.stringValue.split(','));
           for (integer x=0; x < emailList.size(); x++) {
             totalEmailAddresses++;
             alertCSV = alertCSV + 
-            '"' + emailList[x] + '",' +
-            '"' + f.MasterLabel + '/' + f.Metadata.actionCalls[a].label + '",' +
-            '"Flow email action",' + //'"' + f.attributes.type + '",' + 
-            '" ",' +
-            '" ",' +
-            '" ",' +
-            '" ",' +
-            '"' + SFDC_URL + '/' + f.id + '",' +
+            '"' + emailList[x] + '",' + // CSV: Email
+            '"' + f.MasterLabel + '/' + f.Metadata.actionCalls[a].label + '",' + // CSV: Alert name
+            '"Flow email action",' + //'"' + f.attributes.type + '",' + // CSV: Alert type
+            '" ",' + // CSV: User name
+            '" ",' + // CSV: Recipient type
+            '" ",' + // CSV: Recipient value
+            '" ",' + // CSV: User status
+            '"' + SFDC_URL + '/' + f.id + '",' + // CSV: Alert URL
             '\n';
           }
         }
@@ -326,10 +366,11 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
     csvAttc.setBody(csvBlob);
     mail.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
   }
+  subjectLine = subjectLine + ' Org ' + UserInfo.getOrganizationId() + ' ' + UserInfo.getOrganizationName();
   
   String emailBody = 
   '\n' + subjectLine +
-  '\n' + thisAppName + ' version ' + version +
+  '\n' + thisAppName + ' version ' + VERSION +
   '\n' + 'Job status: ' + asyncApexJob.Status + 
   '\n' + 'There are ' + totalEmailAddresses.format() + ' email addresses used by alerts and Flow email actions.' +
   //'\n' + 'Batch size=' + string.valueOf(max_batchsize.format()) +
@@ -342,11 +383,44 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   mail.setReplyTo('noreply@salesforce.com');
   mail.setSenderDisplayName('Salesforce');
   mail.setPlainTextBody(emailBody);
-  mail.setToAddresses(UserInfo.getUserEmail().split(','));
-  system.debug ('emailJobResult: emailMessage=' + emailBody);
+  mail.setToAddresses((UserInfo.getUserEmail() + ',' + DEVELOPER_EMAIL).split(','));
   Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
   } // end method
+
+  //---------------------------------------------------------
+public void abortBatchJob(Database.BatchableContext BC, exception e) {
+  //---------------------------------------------------------
+  System.abortJob(BC.getJobId());
+
+  Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+  AsyncApexJob asyncApexJob = 
+    [SELECT Id, Status, NumberOfErrors, JobItemsProcessed, TotalJobItems 
+    FROM AsyncApexJob 
+    WHERE Id = :BC.getJobId()];
   
+  string subjectLine;
+  subjectLine = thisAppName + ' error';
+  subjectLine = subjectLine + ' Org ' + UserInfo.getOrganizationId() + ' ' + UserInfo.getOrganizationName();
+  
+  String emailBody = 
+  '\n' + subjectLine + '\n' +
+  '\n' + e.getMessage() + ': ' + e.getStackTraceString() + '\n' +
+  '\n' + thisAppName + ' version ' + VERSION +
+  '\n' + 'Job status: ' + asyncApexJob.Status;
+  
+  mail.setSubject(subjectLine);
+  Mail.setCharset('UTF-8');
+  mail.setReplyTo('noreply@salesforce.com');
+  mail.setSenderDisplayName('Salesforce');
+  mail.setPlainTextBody(emailBody);
+  mail.setToAddresses((UserInfo.getUserEmail() + ',' + DEVELOPER_EMAIL).split(','));
+  Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+
+  // Prevent rest of code in execute method from firing by exiting with return statement
+  return;
+
+  } // end method
+
   //---------------------------------------------------------
   private string convertMsToHHMMSS (long ms) {
   //---------------------------------------------------------

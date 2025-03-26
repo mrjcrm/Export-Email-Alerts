@@ -1,0 +1,26 @@
+How to abort a running batch job: System.abortJob(AsyncApexJob ID). Example:
+-------------------------------
+global override void execute(Database.BatchableContext BC, List<SObject> scope) {
+  try {
+    /** do stuff **/
+  } catch (Exception ex) {
+    // The finish method isn't called when we abort, so let's directly call it
+    finish(BC); 
+    // Get current jobId from batch context to pass to the abort method
+    System.abortJob(BC.getJobId());
+    // Prevent rest of code in execute method from firing by exiting with return statement
+    return;
+  } 
+}
+
+Exception properties - example
+-------------------- 
+e.getLineNumber()
+e.getMessage()
+e.getStackTrace() // Will stack trace incude line number, class name, and method name?
+
+Add to install doc
+------------------
+Remind customer that org mail must be enabled
+Remind customer that this app uses async batching, which may consume some limits
+Question - is it ok to put org id and org name in email?
