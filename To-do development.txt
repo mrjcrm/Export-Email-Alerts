@@ -22,5 +22,6 @@ e.getStackTrace() // Will stack trace incude line number, class name, and method
 Add to install doc
 ------------------
 Required: Setup > Email > Deliverability > Access level (set to "All email")
-Remind customer that this app uses async batching, which may consume some limits
+Remind customer this app uses async batching, which may eat up some limits
 Question - is it ok to put org id and org name in email?
+Required permission: View All Data
