@@ -3,7 +3,7 @@
 ## Features
 - Exports to CSV the email addresses for all email alerts and active flow email actions
 - CSV is emailed to you
-- Resolves multi-user targets (role/subordinates and groups) into individual email addresses
+- Resolves multi-user targets (role/subordinates, and groups) into individual email addresses
 ## Architecture
 - Uses Tooling API to read WorkflowAlerts and Flows
 - Uses Batch Apex in case your org has a large number of alerts

@@ -9,12 +9,11 @@ private class BATCH_ExportEmailAlertsTEST {
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
-static testmethod void test_ErrorHandler() {
+static testmethod void test_ErrorHandler_HTTPErr_StartMethod() {
 //--------------------------------------------------------------------------------
-Test.startTest();
-Test.setMock(HttpCalloutMock.class, new BATCH_ExportEmailAlertsMockHTTP('WorkflowAlert'));
+Test.startTest(); 
+Test.setMock(HttpCalloutMock.class, new BATCH_ExportEmailAlertsMockHTTP('HTTPErr'));
 BATCH_ExportEmailAlerts b = new BATCH_ExportEmailAlerts();
-b.testException = true;
 Database.executeBatch (b,10);
 Test.stopTest();
 } // end method
@@ -58,10 +57,10 @@ Test.stopTest(); // Correct placement of stopTest. Don't place at end of this me
 // Test: Make sure CSV has the right number of Flow email actions based on the HTTPMock data.
 integer flowsFound = BATCH_ExportEmailAlerts.copyOfAlertCSV.countMatches('"Flow email action"'); // was "Flow"
 if (2 == flowsFound) {
-    system.debug('Test passed. CSV has two Flow alerts.');
+    // Test passed. CSV has two Flow alerts
 }
 else {
-    system.debug('Test failed. Expected CSV to have two Flow alerts, found ' + flowsFound);
+    // Test failed. Expected CSV to have two Flow alerts, found ' + flowsFound);
     Assert.fail();
 }
 
@@ -79,16 +78,18 @@ Test.stopTest();
 // Test: Make sure CSV has the right number of WorkflowAlerts based on the HTTPMock data.
 integer wfaFound = BATCH_ExportEmailAlerts.copyOfAlertCSV.countMatches('"Email alert"'); // was "WorkflowAlert"
 if (14 == wfaFound) {
-    system.debug('Test passed. CSV has 14 WorkflowAlerts.');
+    // Test passed. CSV has 14 WorkflowAlerts
 }
 else {
-    system.debug('Test failed. Expected CSV to have 14 WorkflowAlerts, found ' + wfaFound);
+    // Test failed. Expected CSV to have 14 WorkflowAlerts, found other
     Assert.fail();
 }
 } // end method
 
 //--------------------------------------------------------------------------------
-static testmethod void test_Functionality_HTTPErr() {
+/*
+static testmethod void test_ErrorHandler_HTTPErr() {
+//glixl this is a duplicate method, delete it
 //--------------------------------------------------------------------------------
 Test.startTest();
 Test.setMock(HttpCalloutMock.class, new BATCH_ExportEmailAlertsMockHTTP('HTTPErr'));
@@ -96,6 +97,7 @@ BATCH_ExportEmailAlerts b = new BATCH_ExportEmailAlerts();
 Database.executeBatch(b,10);
 Test.stopTest();
 } // end method
+*/
 
 //--------------------------------------------------------------------------------
 static testmethod void test_Functionality_NoAlerts() {

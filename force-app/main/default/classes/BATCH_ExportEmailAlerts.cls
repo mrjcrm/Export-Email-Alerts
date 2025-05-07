@@ -3,24 +3,26 @@
 //---------------------------------------------------------
 
 //---------------------------------------------------------
-// Purpose: Export all email alerts and active flow email actions) to a CSV which is emailed to the current user
-// Strategy: Use Tooling API to read  WorkflowAlerts and Flows
-// Strategy: Use batch Apex in case org has lots of email alerts
-// Read-only, no updates made to Salesforce
+// Purpose: Export all email alerts and active flow email actions) to a CSV and email it to current user
+// Strategy: Use Tooling API to read WorkflowAlerts and Flows
+// Strategy: Use batch Apex to handle large volumes
+// Read-only. No updates made to Salesforce data
 // Author: Rod MacKenzie mr.jcrm@gmail.com
-//
 // How to install and run (admin privileges are required)
-// - Recommended: See GitHub for how to install and run
-// - Or, manually deploy the classes. Then run by executing anonymous Apex:
-//   Database.executeBatch(new BATCH_ExportEmailAlerts(),50);
+// - See GitHub repository "ExportSFDCAlerts" for details
+// - Or, if you're comfortable with anonymous apex, deploy the classes and run Database.executeBatch(new BATCH_ExportEmailAlerts(),1); 
 //---------------------------------------------------------
 
 //---------------------------------------------------------
 public with sharing class BATCH_ExportEmailAlerts implements Database.Batchable<String>, Database.Stateful, Database.AllowsCallouts  {
 //---------------------------------------------------------
 
-static final string VERSION = '1.0.0';
+// Constants
+static final string APPVERSION = '1.0.0';
+static final string TOOLINGAPIVER = 'v57.0';
 static final string DEVELOPER_EMAIL = 'exportsfdcalerts@gmail.com';
+static final string APPNAME = 'ExportSFDCAlerts';
+static final string SFDC_URL = Url.getSalesforceBaseUrl().toExternalForm(); 
   
 //---------------------------------------------------------
 @InvocableMethod(label='Export Email Alerts') public static void exportEmailAlerts() {
@@ -29,28 +31,17 @@ static final string DEVELOPER_EMAIL = 'exportsfdcalerts@gmail.com';
 Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be on the safe side.
 } // end method
   
-  // Governor statistics
-  public integer max_cpu = 0;
-  public integer max_dmlrows = 0;
-  public integer max_dmlstmt = 0;
-  public integer max_heap = 0;
-  public integer max_queries = 0;
-  public integer max_queryrows = 0;
-  public integer max_emails = 0;
-  public integer max_batchsize = 0;
-      
-  // Vars for any batch job
+  // Vars for all batch jobs
   public string errorString= ''; // List of errors encountered by this job.
-  public integer appErrorCount = 0;
   integer totalErrors = 0;
-  public datetime startTime = system.now();
-  static final string SFDC_URL = Url.getSalesforceBaseUrl().toExternalForm(); 
         
   // Vars for this app
-  public boolean testException = false;
+  
+  // Exception variables
+  public virtual class BadHTTPStatus_Exception extends Exception {}
+  //public class xxxException extends BadHTTPStatus_Exception {} // glixl
+  
   public string alertCSV = '';
-  static final string thisAppName = 'ExportEmailAlerts'; 
-  static final string APIVER = 'v57.0';
   static final string query_start_workflowalert = 'Select+id+from+workflowalert';
   static final string query_start_flow = 'Select+id+from+flow+where+status=\'active\'+and+processtype=\'flow\'';
   public integer totalEmailAddresses = 0;
@@ -74,31 +65,38 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   public BATCH_ExportEmailAlerts() { // Constructor
   //---------------------------------------------------------
   alertCSV = CSVHeading; // Initialize CSV
-  //APIVER = APIVersionOfCurrentClass();
   } // end method
   
   //---------------------------------------------------------
   public Iterable<String> start(Database.BatchableContext BC) {
   //---------------------------------------------------------
-  list<string> alertIds = new list<string>();
-  
-  // Set up common HTTP parameters for JSON web callouts and REST/Tooling API authorization
+  list<string> alertIds = new list<string>();  
+  try {
   HttpRequest req = new HttpRequest();
   Http h = new Http();
   HttpResponse res;
   req.setHeader('Authorization', 'Bearer ' + UserInfo.getSessionID());
   req.setHeader('Content-Type', 'application/json');
   req.setMethod('GET'); 
-  
-  // Get WorkflowAlert ids using REST/Tooling API
-  req.setEndpoint(SFDC_URL + '/services/data/'+ APIVER + '/tooling/query?q=' + query_start_workflowalert);
+
+  // Get WorkflowAlert ids using Tooling API
+  req.setEndpoint(SFDC_URL + '/services/data/'+ TOOLINGAPIVER + '/tooling/query?q=' + query_start_workflowalert);
   getAlertIds (h, req, res, alertIds, 'WorkflowAlert');
   
   // Get Flow ids using REST/Tooling API
-  req.setEndpoint(SFDC_URL + '/services/data/'+ APIVER + '/tooling/query?q=' + query_start_flow);
+  req.setEndpoint(SFDC_URL + '/services/data/'+ TOOLINGAPIVER + '/tooling/query?q=' + query_start_flow);
   getAlertIds (h, req, res, alertIds,'Flow');
+
+  return alertIds; // Return list of alert Ids.
+  } // end try
    
-   return alertIds; // Return list of alert Ids.
+  catch (exception e) {
+    totalErrors++; errorString = '\n' + errorString + 'msg=' + e.getMessage() + ', line=' + e.getLineNumber()  + ', stacktrace=' + e.getStackTraceString();
+    System.abortJob(BC.getJobId());
+    finish(BC);
+  } // end catch
+  
+  return alertIds;  
   } // end method
   
   //---------------------------------------------------------
@@ -106,8 +104,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   //---------------------------------------------------------
   res = h.send(req);
   if (res.getStatus() != 'ok') { 
-    errorString = errorString + '\ngetAlertIds: HTTP GET error(' + recType + '): status=' + res.getStatus(); 
-    appErrorCount++;
+    throw new BadHTTPStatus_Exception ('method:GetAlertIds, rectype:' + recType + ', HTTP status:' + res.getStatus());
   }
   else {
     JSONParser parser = JSON.createParser(res.getBody());
@@ -129,46 +126,25 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   req.setHeader('Authorization', 'Bearer ' + UserInfo.getSessionID());
   req.setHeader('Content-Type', 'application/json');
   req.setMethod('GET'); 
-  
-  try {
 
   for(Integer x = 0; x < scope.size(); x++) {
-    if (testException) { // Test to ensure app responds correctly if exception occurs in this method
-      integer suicide = 0/0;
-    }
-   
+
     if (scope[x].left(3) == '01W') { // 01W rec prefix = workflowalert
-      req.setEndpoint(SFDC_URL + '/services/data/'+ APIVER + '/tooling/sobjects/WorkflowAlert/' + scope[x]);
+      req.setEndpoint(SFDC_URL + '/services/data/'+ TOOLINGAPIVER + '/tooling/sobjects/WorkflowAlert/' + scope[x]);
       res = h.send(req);
-      if (res.getStatus() != 'ok') {
-        system.debug('glixl Bad HTTP status for rectype 01W: ' + res.getStatus() + ', id=' + scope[x]);
-      } else {
-        addToSpreadsheet_WorkflowAlert(res);
-      }
+      addToSpreadsheet_WorkflowAlert(res);
     } 
     else if (scope[x].left(3) == '301') { // 301 rec prefix = flow)
-      req.setEndpoint(SFDC_URL + '/services/data/'+ APIVER + '/tooling/sobjects/Flow/' + scope[x]);
+      req.setEndpoint(SFDC_URL + '/services/data/'+ TOOLINGAPIVER + '/tooling/sobjects/Flow/' + scope[x]);
       res = h.send(req);
-      if (res.getStatus() != 'ok') {
-        system.debug('glixl Bad HTTP status for rectype 301: ' + res.getStatus() + ', id=' + scope[x]);
-      } else {
-        addToSpreadsheet_Flow(res);
-      }
+      addToSpreadsheet_Flow(res);
     } // end if 
   } // end for
-  
-  // Update governor stats for this batch
-  updateBatchGovernorStats(scope.size());
 
-  } // end try
-  
-  catch (Exception e) {
-    abortBatchJob(BC, e);
-  } // end catch
+  system.debug ('glixl-a: availableHeapSize=' + String.valueOf(Limits.getLimitHeapSize().format()) + ', usedHeapSize=' + String.valueOf(Limits.getHeapSize().format())); // glixl
 
   } // end method
 
-  
   //----------------------------------------------------------
   public void finish(Database.BatchableContext BC) {
   //---------------------------------------------------------
@@ -267,11 +243,11 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   return [SELECT Id, Email, FirstName, LastName, IsActive FROM User WHERE email = :emailAddress];
   } // end method
 
-  /* //---------------------------------------------------------
+  /* glixl - haven't decided whether to resolve contact/lead ids to email address for spreadsheet
+  //---------------------------------------------------------
   private string getObjectEmail (string objectId) {
   //---------------------------------------------------------
   if (objectId.left(3) == '003') { // Contact
-    integer x = 10/0;
     return [SELECT email FROM contact WHERE Id = :objectId LIMIT 1].Id;
   }
   else if (objectId.left(3) == '00Q') { // Lead
@@ -284,8 +260,9 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   else {
     return null;
   }
-  } // end method */
-  
+  } // end method
+  */
+
   //---------------------------------------------------------
   private void writeRecipientCSV (workFlowAlert w, integer whichRecip, list<user> userList) {
   //---------------------------------------------------------
@@ -342,123 +319,44 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   //---------------------------------------------------------
   public void emailJobResult(Database.BatchableContext BC) {
   //---------------------------------------------------------
-  string elapsedTime = convertMsToHHMMSS (system.now().getTime() - startTime.getTime());
-  
-  Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-  AsyncApexJob asyncApexJob = 
-    [SELECT Id, Status, NumberOfErrors, JobItemsProcessed, TotalJobItems 
-    FROM AsyncApexJob 
-    WHERE Id = :BC.getJobId()];
-  
   string subjectLine;
-  totalErrors = asyncApexJob.numberOfErrors + appErrorCount;
+  Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+  
   if (totalErrors > 0) {
-    subjectLine = thisAppName + ': There were ' + totalErrors + ' errors';
+    subjectLine = APPNAME + ' had ' + totalErrors + ' errors';
   }
   else if (totalEmailAddresses == 0) {
-    subjectLine = 'Your org has no email alerts.';
+    subjectLine = 'Found ' + totalEmailAddresses + ' email addresses.';
   }
   else {
-    subjectLine = 'Here\'s your list of email alerts.';
+    subjectLine = 'Found ' + totalEmailAddresses + ' email addresses.';
     Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
     blob csvBlob = Blob.valueOf(alertCSV);
     string csvname= 'Email alerts.csv'; csvAttc.setFileName(csvname);
     csvAttc.setBody(csvBlob);
     mail.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
   }
-  subjectLine = subjectLine + ' Org ' + UserInfo.getOrganizationId() + ' ' + UserInfo.getOrganizationName();
+  subjectLine = subjectLine + ' (Org ' + UserInfo.getOrganizationId() + '/' + UserInfo.getOrganizationName() + ')';
   
   String emailBody = 
-  '\n' + subjectLine +
-  '\n' + thisAppName + ' version ' + VERSION +
-  '\n' + 'Job status: ' + asyncApexJob.Status + 
+  '\n' + APPNAME + ' version ' + APPVERSION +
   '\n' + 'There are ' + totalEmailAddresses.format() + ' email addresses used by alerts and Flow email actions.' +
-  //'\n' + 'Batch size=' + string.valueOf(max_batchsize.format()) +
-  '\n' + 'Elapsed time ' + elapsedTime + 
-  '\n\n' + 'Governor statistics: ' + summarizeBatchGovernorStats() +
-  '\n\n' + 'There were ' + totalErrors + ' errors.' + errorString;
   
+  (totalErrors > 0 ? '\n\n' + 'There were ' + totalErrors + ' errors.' + errorString : '');
+
   mail.setSubject(subjectLine);
   Mail.setCharset('UTF-8');
   mail.setReplyTo('noreply@salesforce.com');
-  mail.setSenderDisplayName('Salesforce');
-  mail.setPlainTextBody(emailBody);
-  mail.setToAddresses((UserInfo.getUserEmail() + ',' + DEVELOPER_EMAIL).split(','));
-  Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-  } // end method
-
-  //---------------------------------------------------------
-public void abortBatchJob(Database.BatchableContext BC, exception e) {
-  //---------------------------------------------------------
-  System.abortJob(BC.getJobId());
-
-  Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-  AsyncApexJob asyncApexJob = 
-    [SELECT Id, Status, NumberOfErrors, JobItemsProcessed, TotalJobItems 
-    FROM AsyncApexJob 
-    WHERE Id = :BC.getJobId()];
-  
-  string subjectLine;
-  subjectLine = thisAppName + ' error';
-  subjectLine = subjectLine + ' Org ' + UserInfo.getOrganizationId() + ' ' + UserInfo.getOrganizationName();
-  
-  String emailBody = 
-  '\n' + subjectLine + '\n' +
-  '\n' + e.getMessage() + ': ' + e.getStackTraceString() + '\n' +
-  '\n' + thisAppName + ' version ' + VERSION +
-  '\n' + 'Job status: ' + asyncApexJob.Status;
-  
-  mail.setSubject(subjectLine);
-  Mail.setCharset('UTF-8');
-  mail.setReplyTo('noreply@salesforce.com');
-  mail.setSenderDisplayName('Salesforce');
+  mail.setSenderDisplayName(APPNAME);
   mail.setPlainTextBody(emailBody);
   mail.setToAddresses((UserInfo.getUserEmail() + ',' + DEVELOPER_EMAIL).split(','));
   Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
 
-  // Prevent rest of code in execute method from firing by exiting with return statement
-  return;
-
+  //glixl
+  system.debug ('glixl-1: subjectLine=' + subjectLine);
+  system.debug ('glixl-2: body=' + emailBody);
   } // end method
 
-  //---------------------------------------------------------
-  private string convertMsToHHMMSS (long ms) {
-  //---------------------------------------------------------
-  long elapsedSecs = ms/1000;
-  string hrs = elapsedSecs / 3600 + 'h ';
-  string mins = math.Mod(elapsedSecs, 3600) / 60 + 'm ';
-  string secs = math.Mod( math.Mod(elapsedSecs, 3600), 60) + 's';
-  return hrs + mins + secs;
-  }
-  
-  //---------------------------------------------------------
-  private void updateBatchGovernorStats(integer scopeSize) {
-  //----------------------------------------------------------
-  if (scopeSize > max_batchsize) max_batchsize = scopeSize;
-  if (Limits.getCpuTime() > max_cpu) max_cpu = Limits.getCpuTime();
-  if (Limits.getHeapSize() > max_heap) max_heap = Limits.getHeapSize();
-  if (Limits.getDMLStatements() > max_dmlstmt) max_dmlstmt = Limits.getDmlStatements();
-  if (Limits.getDMLRows() > max_dmlrows) max_dmlrows = Limits.getDmlRows();
-  if (Limits.getQueries() > max_queries) max_queries = Limits.getQueries();
-  if (Limits.getQueryRows() > max_queryrows) max_queryrows = Limits.getQueryRows();
-  if (Limits.getEmailInvocations() > max_emails) max_emails = Limits.getEmailInvocations();
-  } // end method 
-  
-  //---------------------------------------------------------
-  private string summarizeBatchGovernorStats() {
-  //---------------------------------------------------------
-  // Comment out the statistics you don't care about
-  string summary = '';
-  summary += '\n' + 'Batch with most cpu=' + String.valueOf(max_cpu.format()) + 'ms. Limit=' + String.valueOf(Limits.getLimitCpuTime().format()) + 'ms';
-  summary += '\n' + 'Batch with biggest heapsize=' + String.valueOf(max_heap.format()) + ' bytes. Limit=' + String.valueOf(Limits.getLimitHeapSize().format()) + ' bytes';
-  //summary += '\n' + 'Batch with most DML statements=' + String.valueOf(max_dmlstmt.format()) + '. Limit=' + String.valueOf(Limits.getLimitDmlStatements().format());
-  //summary += '\n' + 'Batch with most DML rows=' + String.valueOf(max_dmlrows.format()) + '. Limit=' + String.valueOf(Limits.getLimitDmlRows().format());
-  summary += '\n' + 'Batch with most SOQL queries=' + String.valueOf(max_queries.format()) + '. Limit=' + String.valueOf(Limits.getLimitQueries().format());
-  summary += '\n' + 'Batch with most SOQL rows=' + String.valueOf(max_queryrows.format()) + '. Limit=' + String.valueOf(Limits.getLimitQueryRows().format());
-  //summary += '\n' + 'Batch with most email invocations=' + String.valueOf(max_emails.format()) + '. Limit=' + String.valueOf(Limits.getLimitEmailInvocations().format());
-  return summary;
-  } // end method
-  
   //---------------------------------------------------------
   // Wrapper class for workFlowAlert sObject
   //---------------------------------------------------------
