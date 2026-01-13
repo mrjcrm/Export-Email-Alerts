@@ -1,0 +1,15 @@
+{
+  "_comment": "when running 'sf org create scratch,' use --no-namespace when needed",
+  "orgName": "Demo company xxx",
+  "edition": "Enterprise",
+  "features": ["EnableSetPasswordInApi"],
+  "hasSampleData": true,
+  "settings": {
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    },
+    "mobileSettings": {
+      "enableS1EncryptedStoragePref2": false
+    }
+  }
+}

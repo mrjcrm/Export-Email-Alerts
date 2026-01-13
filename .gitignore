@@ -51,8 +51,6 @@ $RECYCLE.BIN/
 # Local environment variables
 .env
 force-app/main/default/aura/.eslintrc.json
-config/project-scratch-def.json
-sfdx-project.json
 .eslintignore
 package.json
 jest.config.js
