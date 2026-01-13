@@ -3,7 +3,7 @@
 //---------------------------------------------------------
 
 //---------------------------------------------------------
-// Purpose: Export all email alerts and active flow email actions) to a CSV and email it to current user
+// Purpose: Export all email alerts and active flow email actions to a CSV and email it to current user
 // Strategy: Use Tooling API to read WorkflowAlerts and Flows
 // Strategy: Use batch Apex to handle large volumes
 // Read-only. No updates made to Salesforce data
