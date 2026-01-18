@@ -11,8 +11,10 @@
             <targetReference>JobSubmitted</targetReference>
         </connector>
         <flowTransactionModel>Automatic</flowTransactionModel>
+        <nameSegment>BATCH_ExportEmailAlerts</nameSegment>
     </actionCalls>
     <apiVersion>61.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
     <interviewLabel>Export email alerts {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Export email alerts</label>
@@ -48,6 +50,14 @@
             <name>Status</name>
             <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 12px; color: rgb(68, 68, 68);&quot;&gt;Background job submitted. CSV will be emailed to {!$User.Email}&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <nextOrFinishButtonLabel>I&apos;m done.</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
@@ -68,6 +78,14 @@
             <name>Message</name>
             <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 14px; background-color: rgb(255, 255, 255);&quot;&gt;CSV will be emailed to {!$User.Email}&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <nextOrFinishButtonLabel>Submit</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>

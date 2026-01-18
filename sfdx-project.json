@@ -1,33 +1,7 @@
-{
-  "namespace": "MrJCRM",
-  "packageDirectories": [
-    {
-      "path": "force-app",
-      "package": "ExportEmailAlerts",
-      "versionNumber": "1.2.3.4",
-      "releaseNotesUrl": "https://github.com/mrjcrm/Export-Email-Alerts"
-    },
-    {
-      "versionName": "ver 0.1",
-      "versionNumber": "0.1.0.NEXT",
-      "path": "force-app",
-      "default": true,
-      "package": "Export Email Alerts",
-      "versionDescription": "List all email alerts in CSV format"
-    },
-    {
-      "versionName": "ver 0.1",
-      "versionNumber": "0.1.0.NEXT",
-      "path": "force-app",
-      "default": false,
-      "package": "Export Email Alerts1",
-      "versionDescription": "List all email alerts in CSV format"
-    }
-  ],
-  "packageAliases": {
-    "Export Email Alerts": "0Hoak0000001D4rCAE",
-    "Export Email Alerts1": "0Hoak0000001D6TCAU",
-    "Export Email Alerts1@1.0.0-1": "04tak000000JDeHAAW",
-    "Export Email Alerts1@1.0.0-2": "04tak000000JgbRAAS"
-  }
+{ 
+"packageDirectories" : [ 
+    { "path": "force-app", "default": true} 
+],
+"namespace": "", 
+"sfdcLoginUrl" : "https://login.salesforce.com" 
 }
