@@ -39,12 +39,10 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   
   // Exception variables
   public virtual class BadHTTPStatus_Exception extends Exception {}
-  //public class xxxException extends BadHTTPStatus_Exception {} // glixl
-  
+    
   public string alertCSV = '';
   static final string query_start_workflowalert = 'Select+id+from+workflowalert';
   static final string query_start_flow = 'Select+id+from+flow+where+status=\'active\'+and+processtype=\'flow\'';
-  public integer totalEmailAddresses = 0;
   public final string CSVHeading =
     '"Email",' +
     '"Alert name",' + // Email alert name, or Flow name + "/" + Email action name
@@ -141,7 +139,8 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
     } // end if 
   } // end for
 
-  system.debug ('glixl-a: availableHeapSize=' + String.valueOf(Limits.getLimitHeapSize().format()) + ', usedHeapSize=' + String.valueOf(Limits.getHeapSize().format())); // glixl
+  //debugging info
+  //system.debug ('glixl-a: availableHeap=' + String.valueOf(Limits.getLimitHeapSize().format()) + ', usedHeap=' + String.valueOf(Limits.getHeapSize().format()));
 
   } // end method
 
@@ -163,7 +162,6 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   if (w.CcEmails != null) { 
     list<string> ccEmailList = new list<string>(w.CcEmails.split(','));
     for (integer x=0; x < ccEmailList.size(); x++) {
-      totalEmailAddresses++;
       alertCSV = alertCSV + 
         '"' + ccEmailList[x] + '",' +
         '"' + w.Description + '",' +
@@ -243,7 +241,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   return [SELECT Id, Email, FirstName, LastName, IsActive FROM User WHERE email = :emailAddress];
   } // end method
 
-  /* glixl - haven't decided whether to resolve contact/lead ids to email address for spreadsheet
+  /* glixl This method commented out until we decide whether to resolve contact/lead ids (from RecipientIDs in flow email actions) to actual email addresses
   //---------------------------------------------------------
   private string getObjectEmail (string objectId) {
   //---------------------------------------------------------
@@ -267,7 +265,6 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   private void writeRecipientCSV (workFlowAlert w, integer whichRecip, list<user> userList) {
   //---------------------------------------------------------
   for (integer y=0; y < userList.size(); y++) {
-    totalEmailAddresses++;
     alertCSV = alertCSV + 
       '"' + userList[y].email + '",' + // CSV: Email
       '"' + w.Description + '",' + // CSV: Alert name
@@ -297,7 +294,6 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
         (f.metadata.actionCalls[a].inputParameters[b].value.stringValue != null)) {
           list<string> emailList = new list<string>(f.metadata.actionCalls[a].inputParameters[b].value.stringValue.split(','));
           for (integer x=0; x < emailList.size(); x++) {
-            totalEmailAddresses++;
             alertCSV = alertCSV + 
             '"' + emailList[x] + '",' + // CSV: Email
             '"' + f.MasterLabel + '/' + f.Metadata.actionCalls[a].label + '",' + // CSV: Alert name
@@ -321,28 +317,25 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   //---------------------------------------------------------
   string subjectLine;
   Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-  
+  integer csvRecs = alertCSV.split('\n').size() - 1; // Subtract 1 for header row.
   if (totalErrors > 0) {
-    subjectLine = APPNAME + ' had ' + totalErrors + ' errors';
+    subjectLine = APPNAME + ': ' + totalErrors.format() + ' errors';
   }
-  else if (totalEmailAddresses == 0) {
-    subjectLine = 'Found ' + totalEmailAddresses + ' email addresses.';
+  else if (csvRecs == 0) {
+    subjectLine = 'No alerts for ' + UserInfo.getOrganizationName();
   }
   else {
-    subjectLine = 'Found ' + totalEmailAddresses + ' email addresses.';
+    subjectLine = 'List of alerts for ' + UserInfo.getOrganizationName();
     Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
     blob csvBlob = Blob.valueOf(alertCSV);
     string csvname= 'Email alerts.csv'; csvAttc.setFileName(csvname);
     csvAttc.setBody(csvBlob);
     mail.setFileAttachments(new Messaging.EmailFileAttachment[]{csvAttc});
   }
-  subjectLine = subjectLine + ' (Org ' + UserInfo.getOrganizationId() + '/' + UserInfo.getOrganizationName() + ')';
-  
+    
   String emailBody = 
-  '\n' + APPNAME + ' version ' + APPVERSION +
-  '\n' + 'There are ' + totalEmailAddresses.format() + ' email addresses used by alerts and Flow email actions.' +
-  
-  (totalErrors > 0 ? '\n\n' + 'There were ' + totalErrors + ' errors.' + errorString : '');
+  '\n' + csvRecs.format() + ' csv records' +
+  (totalErrors > 0 ? '\n' + totalErrors.format() + ' errors.' + errorString : '');
 
   mail.setSubject(subjectLine);
   Mail.setCharset('UTF-8');
@@ -352,9 +345,9 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   mail.setToAddresses((UserInfo.getUserEmail() + ',' + DEVELOPER_EMAIL).split(','));
   Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
 
-  //glixl
-  system.debug ('glixl-1: subjectLine=' + subjectLine);
-  system.debug ('glixl-2: body=' + emailBody);
+  //debugging info
+  //system.debug ('glixl-1: subject=' + subjectLine);
+  //system.debug ('glixl-2: body=' + emailBody);
   } // end method
 
   //---------------------------------------------------------

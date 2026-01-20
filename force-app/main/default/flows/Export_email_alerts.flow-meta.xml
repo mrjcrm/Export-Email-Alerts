@@ -12,6 +12,7 @@
         </connector>
         <flowTransactionModel>Automatic</flowTransactionModel>
         <nameSegment>BATCH_ExportEmailAlerts</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <apiVersion>61.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -40,7 +41,7 @@
     <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
         <name>JobSubmitted</name>
-        <label>Job submittd.</label>
+        <label>Job submitted.</label>
         <locationX>176</locationX>
         <locationY>350</locationY>
         <allowBack>false</allowBack>
@@ -48,7 +49,7 @@
         <allowPause>false</allowPause>
         <fields>
             <name>Status</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 12px; color: rgb(68, 68, 68);&quot;&gt;Background job submitted. CSV will be emailed to {!$User.Email}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 12px; color: rgb(68, 68, 68);&quot;&gt;Background job submitted. CSV will be emailed to {!$User.Email}. &lt;/span&gt;&lt;/p&gt;&lt;h6&gt;&lt;br&gt;&lt;/h6&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 12px; color: rgb(68, 68, 68);&quot;&gt;If you don&apos;t get it, check your spam folder.&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -59,7 +60,7 @@
                 </width>
             </styleProperties>
         </fields>
-        <nextOrFinishButtonLabel>I&apos;m done.</nextOrFinishButtonLabel>
+        <nextOrFinishButtonLabel>Finish</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -75,8 +76,21 @@
             <targetReference>Export</targetReference>
         </connector>
         <fields>
+            <name>help1</name>
+            <fieldText>&lt;p&gt;{!test1}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
             <name>Message</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 14px; background-color: rgb(255, 255, 255);&quot;&gt;CSV will be emailed to {!$User.Email}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 14px; color: rgb(68, 68, 68);&quot;&gt;Click Submit to run. CSV will be emailed to {!$User.Email}&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -99,4 +113,9 @@
         </connector>
     </start>
     <status>Active</status>
+    <textTemplates>
+        <name>test1</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>&lt;a class=&quot;slds-button slds-button_brand&quot; href=&quot;https://github.com/mrjcrm/Export-Email-Alerts&quot; &gt;Help&lt;/a&gt;</text>
+    </textTemplates>
 </Flow>
