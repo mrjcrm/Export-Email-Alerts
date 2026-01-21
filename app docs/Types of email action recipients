@@ -1,0 +1,7 @@
+Email Action recipients
+-----------------------
+BCC Recipient (list)
+CC Recipient (list)
+Recipient (collection) **DYNAMIC
+Recipient (list)
+Recipient ID (id of lead, contact, or person account) (when using email template)

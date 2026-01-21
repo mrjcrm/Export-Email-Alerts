@@ -1,0 +1,9 @@
+/*
+// Stress test for BATCH_ExportEmailAlerts - put this at end of "start" method /*
+alertIds.clear();
+for (integer x=0; x<500; x++) {
+  alertIds.add ('01W3c000000gDu2EAE'); // add WorkflowAlerts
+  alertIds.add ('3013c000000gQpfAAE'); // add Flows
+} // end for
+// End stress test
+*/

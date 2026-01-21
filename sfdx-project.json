@@ -1,7 +1,18 @@
-{ 
-"packageDirectories" : [ 
-    { "path": "force-app", "default": true} 
-],
-"namespace": "", 
-"sfdcLoginUrl" : "https://login.salesforce.com" 
+{
+  "packageDirectories": [
+    {
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "path": "force-app",
+      "default": true,
+      "package": "Export Email Alerts",
+      "versionDescription": "List all email alerts in CSV format"
+    }
+  ],
+  "namespace": "MrJCRM",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "packageAliases": {
+    "Export Email Alerts": "0Hoak0000001DODCA2",
+    "Export Email Alerts@1.0.0-1": "04tak000000LRzhAAG"
+  }
 }

@@ -1,0 +1,5 @@
+TODO Warn user: This app uses async batching, which may eat into limits
+TODO Enforce required permission: View All Data
+TODO Resolve contact/lead ids (recipientIDs in flow email actions) to email addresses
+TODO Remind user: Setup > Email > Deliverability > Access level must be set to "All email"
+DONE Improve email subject line

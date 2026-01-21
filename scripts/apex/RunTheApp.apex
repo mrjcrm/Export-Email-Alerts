@@ -1,0 +1,1 @@
+xDatabase.executeBatch(new BATCH_ExportEmailAlerts(),1);
