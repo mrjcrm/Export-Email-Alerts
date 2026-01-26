@@ -13,6 +13,7 @@
   "sfdcLoginUrl": "https://login.salesforce.com",
   "packageAliases": {
     "Export Email Alerts": "0Hoak0000001DODCA2",
-    "Export Email Alerts@1.0.0-1": "04tak000000LRzhAAG"
+    "Export Email Alerts@1.0.0-1": "04tak000000LRzhAAG",
+    "Export Email Alerts@1.1.0-1": "04tak000000Lk4fAAC"
   }
 }
