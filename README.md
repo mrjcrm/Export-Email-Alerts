@@ -9,9 +9,9 @@
 - Uses Batch Apex in case your org has a large number of alerts
 ## Support
 exportsfdcalerts@gmail.com
-## How to install
-[![Install Unlocked Package in Production](./images/btn-install-unlocked-package-prod-de.png)](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tak000000LRzhAAG)<br>
-[![Install Unlocked Package in Sandbox](./images/btn-install-unlocked-package-sandbox-scratch.png)](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tak000000LRzhAAG)<br>
+## How to install v1.1
+[![Install Unlocked Package in Production](./images/btn-install-unlocked-package-prod-de.png)](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tak000000Lk4fAAC)<br>
+[![Install Unlocked Package in Sandbox](./images/btn-install-unlocked-package-sandbox-scratch.png)](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tak000000Lk4fAAC)<br>
 ## How to run
 1. In the SFDC App Launcher search for 'export'<br>
 <br><img src="images/HowToRun1.png" alt="Alt text" title="Optional title" width="600"/><br><br>
