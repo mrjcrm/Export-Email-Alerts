@@ -1,1 +1,0 @@
-sf data:query --query "SELECT  QualifiedApiName  FROM FieldDefinition  WHERE EntityDefinition.QualifiedApiName = 'Account'" --use-tooling-api
