@@ -9,7 +9,7 @@
       "versionDescription": "List all email alerts in CSV format"
     }
   ],
-  "namespace": "MrJCRM",
+  "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
   "packageAliases": {
     "Export Email Alerts": "0Hoak0000001DODCA2",
