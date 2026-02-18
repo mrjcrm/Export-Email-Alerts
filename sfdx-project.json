@@ -1,19 +1,18 @@
 {
   "packageDirectories": [
     {
-      "versionName": "ver 0.1",
-      "versionNumber": "0.1.0.NEXT",
+      "versionNumber": "1.2.0.0",
       "path": "force-app",
-      "default": true,
       "package": "Export Email Alerts",
       "versionDescription": "List all email alerts in CSV format"
     }
   ],
   "namespace": "",
+  "sourceApiVersion": "65.0",
   "sfdcLoginUrl": "https://login.salesforce.com",
   "packageAliases": {
-    "Export Email Alerts": "0Hoak0000001DODCA2",
-    "Export Email Alerts@1.0.0-1": "04tak000000LRzhAAG",
-    "Export Email Alerts@1.1.0-1": "04tak000000Lk4fAAC"
+    "Export Email Alerts": "0Hoak0000001E8zCAE",
+    "Export Email Alerts@1.1.0": "04tak000000NVG1AAO",
+    "Export Email Alerts@1.2.0": "04tak000000NVRJAA4"
   }
 }

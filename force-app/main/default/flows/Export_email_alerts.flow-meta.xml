@@ -21,9 +21,6 @@
     <label>Export email alerts</label>
     <processMetadataValues>
         <name>BuilderType</name>
-        <value>
-            <stringValue>LightningFlowBuilder</stringValue>
-        </value>
     </processMetadataValues>
     <processMetadataValues>
         <name>CanvasMode</name>
