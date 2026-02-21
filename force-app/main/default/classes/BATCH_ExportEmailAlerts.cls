@@ -311,6 +311,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   
   } // end method
         
+  // glixl BROKEN
   //---------------------------------------------------------
   public void emailJobResult(Database.BatchableContext BC) {
   //---------------------------------------------------------
@@ -321,10 +322,10 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
     subjectLine = APPNAME + ': ' + totalErrors.format() + ' errors';
   }
   else if (csvRecs == 0) {
-    subjectLine = 'No alerts for ' + UserInfo.getOrganizationName();
+    subjectLine = 'No email alerts found';
   }
   else {
-    subjectLine = 'List of alerts for ' + UserInfo.getOrganizationName();
+    subjectLine = 'List of email alerts';
     Messaging.EmailFileAttachment csvAttc = new Messaging.EmailFileAttachment();
     blob csvBlob = Blob.valueOf(alertCSV);
     string csvname= 'Email alerts.csv'; csvAttc.setFileName(csvname);
@@ -333,6 +334,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   }
     
   String emailBody = 
+  '\n' + 'Org: ' + UserInfo.getOrganizationName() + 
   '\n' + csvRecs.format() + ' csv records' +
   (totalErrors > 0 ? '\n' + totalErrors.format() + ' errors.' + errorString : '');
 
@@ -373,6 +375,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
     public string type;
   }
   
+
   //---------------------------------------------------------
   // Wrapper class for Flow sObject
   //---------------------------------------------------------
