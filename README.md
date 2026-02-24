@@ -9,7 +9,7 @@
 - Uses Batch Apex in case your org has a large number of alerts
 ## Support
 exportsfdcalerts@gmail.com
-## Install v1.2 Beta 2
+## Install v1.3
 [![Install Unlocked Package in Production](./images/btn-install-unlocked-package-prod-de.png)](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tak000000Nnw5AAC)<br>
 [![Install Unlocked Package in Sandbox](./images/btn-install-unlocked-package-sandbox-scratch.png)](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tak000000Nnw5AAC)<br>
 ## How to run
