@@ -44,13 +44,12 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   static final string query_start_flow = 'Select+id+from+flow+where+status=\'active\'+and+processtype=\'flow\'';
   public final string CSVHeading =
     '"Email",' +
-    '"Alert name",' + // Email alert name, or Flow name + "/" + Email action name
+    '"Alert name",' + // Email alert name, or Flow name + "/" + // Alert name
     '"Alert type",' + // "Flow email action" or "Email alert"
-    '"User name",' + // First Name + Last Name (applies only to SFDC users) ????
-    '"Recipient type",' + // Group, Role, Role-Sub, User, CcEmail
-    '"Recipient value",' + // GroupName, RoleName, UserFirstLast ????
-    '"User status",' + // SFDC user active or inactive
-    '"Alert URL",' + // SFDC_URL/01W... (WorkflowAlert), or SFDC_URL/301... (Flow)
+    '"SF user name",' + // First Name + Last Name (applies only to SFDC users) ????
+    '"SF user status",' + // SFDC user active or inactive    
+    '"Note",' + // Group, Role, Role-Sub, User, CcEmail  
+    '"More",' + // SFDC_URL/01W... (WorkflowAlert), or SFDC_URL/301... (Flow)
     '\n'; 
   
   //--------------------------------------------------------------------
@@ -165,10 +164,9 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
         '"' + ccEmailList[x] + '",' +
         '"' + w.Description + '",' +
         '"Email alert",' + // '"' + w.attributes.type + '",' + 
-        '" ",' + 
-        '" ",' +
-        '"' + 'Cc email' + '",' + 
-        '" ",' +
+        '" ",' + // CSV: SF user name
+        '" ",' + // CSV: SF user status
+        '"' + 'Additional email' + '",' + // CSV: Note
         '"' + SFDC_URL + '/' + w.id + '",' +      
         '\n';
     }
@@ -215,7 +213,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   private list<user> getUserList_Group (string groupName) {
   //---------------------------------------------------------
   list<user> userList = new list <user>();
-  list<group> groupId = new list<group> ([SELECT Id FROM Group WHERE Name = :groupName LIMIT 1]);
+  list<group> groupId = new list<group> ([SELECT Id FROM Group WHERE DeveloperName = :groupName LIMIT 1]);
   if (groupId.size() > 0) {
     id groupid0 = groupId[0].id;
     list<GroupMember> groupMembers = new list<groupmember> ([SELECT UserOrGroupId FROM groupmember WHERE GroupId = :groupid0]);
@@ -237,10 +235,10 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   //---------------------------------------------------------
   private list<user> getUserList_User (string emailAddress) {
   //---------------------------------------------------------
-  return [SELECT Id, Email, FirstName, LastName, IsActive FROM User WHERE email = :emailAddress];
+  return [SELECT Id, Email, FirstName, LastName, IsActive FROM User WHERE username = :emailAddress];
   } // end method
 
-  /* glixl This method commented out until we decide whether to resolve contact/lead ids (from RecipientIDs in flow email actions) to actual email addresses
+  /* glixl The method below is commented out until we decide whether to resolve contact/lead ids (from RecipientIDs in flow email actions) to actual email addresses
   //---------------------------------------------------------
   private string getObjectEmail (string objectId) {
   //---------------------------------------------------------
@@ -268,10 +266,9 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
       '"' + userList[y].email + '",' + // CSV: Email
       '"' + w.Description + '",' + // CSV: Alert name
       '"Email alert",' + //'"' + w.attributes.type + '",' + // CSV: Alert type
-      '"' + userList[y].firstName + ' ' + userList[y]. lastName + '",' + // CSV: User name
-      '"' + w.Metadata.recipients[whichRecip].type + '",' + // CSV: Recipient type
-      '"' + w.Metadata.recipients[whichRecip].recipient + '",' + // CSV: Recipient valu
-      '"' + (userList[y].isActive == true ? 'Active' : 'Inactive') + '",' + // CSV: User status
+      '"' + userList[y].firstName + ' ' + userList[y]. lastName + '",' + // CSV: SF user name
+      '"' + (userList[y].isActive == true ? 'Active' : 'Inactive') + '",' + // CSV: SF user status
+      '"' + 'sf ' + w.Metadata.recipients[whichRecip].type + '=' + w.Metadata.recipients[whichRecip].recipient + '",' + // CSV: Note
       '"' + SFDC_URL + '/' + w.id + '",' + // CSV: Alert URL
       '\n';
   }
@@ -286,7 +283,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
     if (f.metadata.actionCalls[a].actionType == 'emailSimple') {
       for (integer b=0; b < f.metadata.actionCalls[a].inputParameters.size(); b++) {
         if ((f.metadata.actionCalls[a].inputParameters[b].name == 'emailAddresses' || 
-        f.metadata.actionCalls[a].inputParameters[b].name == 'emailAddressesArray' ||
+        // not supported f.metadata.actionCalls[a].inputParameters[b].name == 'emailAddressesArray' ||
         f.metadata.actionCalls[a].inputParameters[b].name == 'recipientId' ||
         f.metadata.actionCalls[a].inputParameters[b].name == 'bccRecipientAddressList' ||
         f.metadata.actionCalls[a].inputParameters[b].name == 'ccRecipientAddressList') &&
@@ -295,12 +292,11 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
           for (integer x=0; x < emailList.size(); x++) {
             alertCSV = alertCSV + 
             '"' + emailList[x] + '",' + // CSV: Email
-            '"' + f.MasterLabel + '/' + f.Metadata.actionCalls[a].label + '",' + // CSV: Alert name
+            '"' + f.MasterLabel + '.' + f.Metadata.actionCalls[a].label + '",' + // CSV: Alert name
             '"Flow email action",' + //'"' + f.attributes.type + '",' + // CSV: Alert type
-            '" ",' + // CSV: User name
-            '" ",' + // CSV: Recipient type
-            '" ",' + // CSV: Recipient value
-            '" ",' + // CSV: User status
+            '" ",' + // CSV: SF user name
+            '" ",' + // CSV: SF user status
+                        '" ",' + // CSV: Note
             '"' + SFDC_URL + '/' + f.id + '",' + // CSV: Alert URL
             '\n';
           }
@@ -311,7 +307,6 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   
   } // end method
         
-  // glixl BROKEN
   //---------------------------------------------------------
   public void emailJobResult(Database.BatchableContext BC) {
   //---------------------------------------------------------
