@@ -18,6 +18,7 @@ public with sharing class BATCH_ExportEmailAlerts implements Database.Batchable<
 //---------------------------------------------------------
 
 // Constants
+static final string APPVERSIONNUMBER = '1.4.0.0';
 static final string TOOLINGAPIVER = 'v57.0';
 static final string DEVELOPER_EMAIL = 'exportsfdcalerts@gmail.com';
 static final string APPNAME = 'ExportSFDCAlerts';
@@ -268,7 +269,7 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
       '"Email alert",' + //'"' + w.attributes.type + '",' + // CSV: Alert type
       '"' + userList[y].firstName + ' ' + userList[y]. lastName + '",' + // CSV: SF user name
       '"' + (userList[y].isActive == true ? 'Active' : 'Inactive') + '",' + // CSV: SF user status
-      '"' + 'sf ' + w.Metadata.recipients[whichRecip].type + '=' + w.Metadata.recipients[whichRecip].recipient + '",' + // CSV: Note
+      '"' + 'SF  ' + w.Metadata.recipients[whichRecip].type + '=' + w.Metadata.recipients[whichRecip].recipient + '",' + // CSV: Note
       '"' + SFDC_URL + '/' + w.id + '",' + // CSV: Alert URL
       '\n';
   }

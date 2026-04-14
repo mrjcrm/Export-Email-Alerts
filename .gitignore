@@ -14,6 +14,7 @@ describe*
 *old
 *temp*
 /.VSCode
+vibes/
 
 # Salesforce cache
 .sf/
