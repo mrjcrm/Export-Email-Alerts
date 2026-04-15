@@ -18,7 +18,7 @@ public with sharing class BATCH_ExportEmailAlerts implements Database.Batchable<
 //---------------------------------------------------------
 
 // Constants
-static final string APPVERSIONNUMBER = '1.4.0.0';
+static final string APPVERSIONNUMBER = '1.5.0.0';
 static final string TOOLINGAPIVER = 'v57.0';
 static final string DEVELOPER_EMAIL = 'exportsfdcalerts@gmail.com';
 static final string APPNAME = 'ExportSFDCAlerts';
