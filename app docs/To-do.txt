@@ -1,15 +1,11 @@
-General
--------
+To-do
+-----
 TODO Add to README.md: This app uses async batching, which counts against your limits
 TODO Add to README.md: Setup > Email > Deliverability > Set Access level to "All email"
-TODO Set API version to latest (in cls-meta.xml file, and sfdx-project.json)
 TODO Implement suggestions made by vibes
 TODO Implement suggestions made by Checkmarx and SF code scanner
-TODO PackageVersion name should be name+ver of app, not "Final"
+TODO PackageVersion version-name should be "Export Email Alerts v1.5", not "Final"
 TODO Embed version number in Apex class
 TODO In DevHub create trigger.new on PackageSubscriber to send me email
-TODO Create managed package
-
-This app
---------
+TODO Create managed package version
 TODO Translate contact/lead ids (recipientIDs in flow email actions) to email addresses

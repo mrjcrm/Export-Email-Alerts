@@ -2,7 +2,7 @@
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
 	<types>
 		<members>BATCH_ExportEmailAlerts</members>
-		<members></members>
+		<members>BATCH_ExportEmailAlertsMockHTTP</members>
 		<members>BATCH_ExportEmailAlertsTEST</members>
 		<name>ApexClass</name>
 	</types>
@@ -18,5 +18,5 @@
 		<members>Export_email_alerts</members>
 		<name>Flow</name>
 	</types>
-	<version>65.0</version>
+	<version>67.0</version>
 </Package>
