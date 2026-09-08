@@ -22,8 +22,7 @@ static final string APPVERSIONNUMBER = '1.5.0.0';
 static final string TOOLINGAPIVER = 'v57.0';
 static final string DEVELOPER_EMAIL = 'exportsfdcalerts@gmail.com';
 static final string APPNAME = 'ExportSFDCAlerts';
-static final string SFDC_URL = Url.getSalesforceBaseUrl().toExternalForm(); 
-  
+static final string SFDC_URL = Url.getOrgDomainURL().toExternalForm(); // or getCurrentRequestURL()
 //---------------------------------------------------------
 @InvocableMethod(label='Export Email Alerts') public static void exportEmailAlerts() {
 //---------------------------------------------------------
@@ -343,8 +342,8 @@ Database.executeBatch(new BATCH_ExportEmailAlerts(),1); // Use batchsize=1 to be
   Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
 
   //debugging info
-  //system.debug ('glixl-1: subject=' + subjectLine);
-  //system.debug ('glixl-2: body=' + emailBody);
+  system.debug ('glixl-1: subject=' + subjectLine);
+  system.debug ('glixl-2: body=' + emailBody);
   } // end method
 
   //---------------------------------------------------------

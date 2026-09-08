@@ -1,6 +1,6 @@
 {
   "orgName": "Demo company xxx",
-  "edition": "Enterprise",
+  "edition": "Developer",
   "features": ["EnableSetPasswordInApi"],
   "hasSampleData": true,
   "settings": {
